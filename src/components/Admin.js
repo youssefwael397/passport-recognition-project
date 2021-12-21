@@ -1,11 +1,30 @@
 import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import jwtDecode from 'jwt-decode'
+import axios from 'axios';
 import Table from './Table';
 
 export default function Admin() {
 
     let navigate = useNavigate();
+
+    // check one if token is valid 
+    useEffect(() => {
+        const params = {
+            token: localStorage.getItem('token')
+        }
+
+        axios.post('http://127.0.0.1:5000/api/auth/token', params)
+            .then(res => {
+                if (!res.data) {
+                    localStorage.clear();
+                    navigate('/login')
+
+                }
+            })
+    }, [navigate])
+
+
 
     useEffect(() => {
 
@@ -17,7 +36,7 @@ export default function Admin() {
             const exp_date = new Date(decoded.exp * 1000);
             const now_date = new Date();
 
-            console.log(decoded.exp)
+            // console.log(decoded.exp)
 
             if (!decoded.role) {
                 localStorage.clear()
@@ -30,7 +49,7 @@ export default function Admin() {
             }
 
         }
-    }, [navigate])
+    })
 
     return (
         <div className=''>

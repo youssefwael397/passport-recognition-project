@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+// import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
-import jwtDecode from 'jwt-decode'
+// import jwtDecode from 'jwt-decode'
 import './Table.css'
 export default function Table() {
 
-    let navigate = useNavigate();
+    // let navigate = useNavigate();
+
 
     const [passportsList, setPassportsList] = useState([])
 
@@ -17,33 +18,42 @@ export default function Table() {
         fetchData();
     }, [])
 
+    // useEffect to handle search in the table
     useEffect(() => {
-
-        if (localStorage.getItem('token')) {
-
-            const token = localStorage.getItem('token')
-            const decoded = jwtDecode(token)
-
-            const exp_date = new Date(decoded.exp * 1000);
-            const now_date = new Date();
-
-            console.log(decoded.exp)
-
-            if (!decoded.role) {
-                localStorage.clear()
-                navigate('/login')
-            } else {
-                if (exp_date < now_date) {
-                    localStorage.clear()
-                    navigate('/login')
-                }
-            }
-
-        }
-    }, [navigate])
+        const copyPassports = [...passportsList];
+        const result = copyPassports.filter(passport =>
+            passport.Name.toLowerCase().includes(searchValue.toLowerCase()) || passport.Sex.toLowerCase().includes(searchValue.toLowerCase()) || passport.Nationality.toLowerCase().includes(searchValue.toLowerCase()) || passport.Number.toLowerCase().includes(searchValue.toLowerCase())
+        );
+        setFilteredPassports(result);
+    }, [passportsList, searchValue])
 
 
+    // useEffect(() => {
 
+    //     if (localStorage.getItem('token')) {
+
+    //         const token = localStorage.getItem('token')
+    //         const decoded = jwtDecode(token)
+
+    //         const exp_date = new Date(decoded.exp * 1000);
+    //         const now_date = new Date();
+
+    //         console.log(decoded.exp)
+
+    //         if (!decoded.role) {
+    //             localStorage.clear()
+    //             navigate('/login')
+    //         } else {
+    //             if (exp_date < now_date) {
+    //                 localStorage.clear()
+    //                 navigate('/login')
+    //             }
+    //         }
+
+    //     }
+    // }, [navigate])
+
+    // func to handle fetching passports in the table
     const fetchData = async () => {
         await axios.get(
             'http://127.0.0.1:5000/api/admin/passports/',
@@ -52,6 +62,7 @@ export default function Table() {
                     "access-token": localStorage.getItem('token')
                 }
             }).then(data => {
+                console.log(data)
 
                 setPassportsList(data.data);
 
@@ -106,16 +117,8 @@ export default function Table() {
             })
     }
 
-    useEffect(() => {
-        const copyPassports = [...passportsList];
-        const result = copyPassports.filter(passport =>
-            passport.Name.toLowerCase().includes(searchValue.toLowerCase()) || passport.Sex.toLowerCase().includes(searchValue.toLowerCase()) || passport.Nationality.toLowerCase().includes(searchValue.toLowerCase()) || passport.Number.toLowerCase().includes(searchValue.toLowerCase())
-        );
-        setFilteredPassports(result);
-    }, [passportsList, searchValue])
 
-
-
+    // handle problem if the valid is false 
     const handleProblem = (passProblem) => {
 
         if (passProblem === '0') {
@@ -137,23 +140,33 @@ export default function Table() {
     }
 
 
-    const handleDelete = (e) => {
-        let idd = e.target.id;
-        console.log(idd)
-        axios.delete(
-            `http://127.0.0.1:5000/api/admin/passports/${idd}`,
+    const handleDelete = id => {
 
+        // const pass_id = e.target.id;
+        console.log(id)
+        
+        let url = `http://127.0.0.1:5000/api/admin/passports/${id}`;
+        console.log(url)
+
+        axios.delete(url
+            ,
             {
                 headers: {
                     "access-token": localStorage.getItem('token')
                 }
             }).then(
-                // window.location.reload()
-            )
+                window.location.reload()
+
+            ).catch(err => {
+                // alert('err ', err)
+            })
 
 
     }
 
+    const handleReload = () => {
+        window.location.reload()
+    }
     return (
         <div className='mx-auto my-3 container'>
             <h2 className=' text-center'>Welcome in pd admin panel.</h2>
@@ -164,7 +177,7 @@ export default function Table() {
 
                 <input type="search" placeholder="Search for any passport name, gender or country" value={searchValue} onChange={handleChange} className="form-control" aria-label="" aria-describedby="basic-addon1" />
 
-
+                <button className="btn  " type="button" onClick={handleReload}><i className="fas fa-sync-alt"></i></button>
 
                 <button className="btn btn-secondary " type="button" onClick={handleAll}>All</button>
 
@@ -209,7 +222,7 @@ export default function Table() {
                                             handleProblem(passport.Problem)
                                         }
                                     </td>
-                                    <td><button className='btn' id={passport.id} onClick={handleDelete}><i className="fas fa-trash-alt text-danger"></i></button></td>
+                                    <td><button id={passport.id} className='btn'  onClick={()=>handleDelete(passport.id)}><i className="fas fa-trash-alt text-danger"></i></button></td>
                                 </tr>
 
                             ))) : (
@@ -230,12 +243,21 @@ export default function Table() {
                                     </td>
                                     <td><button className='btn' id={passport.id} onClick={handleDelete}><i className="fas fa-trash-alt text-danger"></i></button></td>
                                 </tr>
-
                             ))
                         )
                     }
                 </tbody>
             </table>
+            <div className="container">
+                {
+                    passportsList < 1 ? (
+                        <h4 className="text-center mt-4">
+                            There is no passports yet.
+                        </h4>
+                    ): null
+                }
+            </div>
+
         </div>
     )
 }

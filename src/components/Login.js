@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import jwtDecode from 'jwt-decode'
+import { useJwt } from "react-jwt";
 import './Login.css'
 
 export default function Login() {
@@ -13,34 +13,23 @@ export default function Login() {
 
     const [isValid, setIsValid] = useState(true);
 
-    // var token = localStorage.getItem('token')
+    const token = localStorage.getItem('token');
+
+    const { isExpired } = useJwt(token);
 
     const navigate = useNavigate()
 
     useEffect(() => {
-
-
-        if (localStorage.getItem('token')) {
-
-            const token = localStorage.getItem('token')
-            const decoded = jwtDecode(token)
-
-            const exp_date = new Date(decoded.exp * 1000);
-            const now_date = new Date();
-
-            if (exp_date < now_date) {
-                localStorage.clear()
-            } else {
-                if (decoded.role) {
-                    setIsValid(true)
-                    navigate('/admin')
-                } else {
-                    setIsValid(false)
-                }
+        if (token) {
+            if (!isExpired) {
+                navigate('/admin')
+            }
+            else {
+                localStorage.clear();
+                // navigate('./login')
             }
         }
-
-    }, [navigate])
+    });
 
 
     const handleSubmit = (e) => {
@@ -53,58 +42,17 @@ export default function Login() {
             .then(
                 res => {
                     localStorage.setItem('token', res.data)
-                    const token = res.data;
-                    console.log(token)
-                    const decoded = jwtDecode(token)
-                    console.log(decoded.role)
-                    if (decoded.role === true) {
-                        setIsValid(true);
-                        window.location.reload();
-                    }
-                }).catch(
-                    error => {
-                        console.log(error)
-                        setIsValid(false)
+                    window.location.reload()
+                })
+            .catch(
+                error => {
+                    console.log(error)
+                    setIsValid(false)
+                    // navigate('/login');
+                }
 
-                        // navigate('/login');
-                    }
-
-                )
-
+            )
     }
-    // const handleSubmit = (e) => {
-    //     e.preventDefault();
-    //     const data = {
-    //         username: username,
-    //         password: password
-    //     }
-
-    //     axios.post(url, data)
-    //         .then(
-    //             res => {
-    //                 const token = res.data;
-    //                 localStorage.setItem('token', token)
-    //                 // console.log(token)
-    //                 const decoded = jwtDecode(token)
-    //                 // console.log(decoded.role)
-    //                 if (decoded.role) {
-    //                     setIsValid(decoded.role)
-    //                     navigate('/admin')
-    //                 }
-    //             }
-    //         )
-    //         .catch(
-    //             error => {
-    //                 console.log(error)
-    //                 setIsValid(false)
-    //                     // navigate('/login');
-    //             }
-
-    //         )
-
-    //     // const token = localStorage.getItem('token');
-
-    // }
 
     return (
         <div>

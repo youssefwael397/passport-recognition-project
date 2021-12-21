@@ -9,7 +9,7 @@ function Footer() {
 
                 <div className="row">
 
-                    <div className="col-md-6 mx-auto">
+                    <div className="my-2 mx-auto">
 
                         <h5 className="font-weight-bold mt-3 mb-4 logo">
                             <i className="fas fa-dice-d20 logo-span"></i> P<span>D</span>
@@ -46,7 +46,7 @@ function Footer() {
                     </a>
                 </li>
                 <li className="list-inline-item">
-                    <a className="btn-floating btn-li mx-1" href='https://www.linkedin.com/in/youssef-wael/' target='_blank' rel="noreferrer">
+                    <a className="btn-floating btn-li mx-1" href='https://www.linkedin.com/in/ahmed-abbas-2a31651a1/' target='_blank' rel="noreferrer">
                         <i className="fab fa-linkedin-in fa-lg"> </i>
                     </a>
                 </li>

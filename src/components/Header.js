@@ -24,7 +24,6 @@ function Header() {
             // console.log(decoded.role)
             if (decoded.role) {
                 setIsValid(true)
-                // navigate('/admin')
             } else {
                 setIsValid(false)
             }

@@ -32,3 +32,7 @@ a i.fa-facebook-square:hover {
 a i.fa-twitter-square:hover {
   color: #1da1f2;
 }
+
+.alert-white {
+  background-color: rgb(235, 235, 235) !important;
+}
